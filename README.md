@@ -41,3 +41,38 @@ Se quiser, `make show` apresenta o estado do Terraform.
 
 ## Destruir o ambiente
 Somente `make clean`. Nada mais.
+
+# OpenSIPS
+Para controlar o OpenSIPS, uma sugestão é que seja feito via systemd. Primeiro, é preciso ativar o suporte a esse, alterando a seguinte linha no arquivo `/etc/default/opensips`:
+```ini
+RUN_OPENSIPS=yes
+```
+Se quiser ativar o serviço por demanda, pode-se deixar o `opensips` desativado por padrão:
+```bash
+systemctl disable opensips
+```
+Para ativá-lo por demanda:
+```bash
+systemctl start opensips
+```
+E desativá-lo quando terminar os experimentos:
+```bash
+systemctl stop opensips
+```
+ Combinado a isso, pode-se também usar a faixa do IFSC câmpus São José, `191.36.8.0/21`, na regra de _firewall_ do GCP.
+
+# Configurar
+As seguintes linhas foram adicionadas no arquivo `/etc/opensips/opensips.cfg`:
+1. Suporte a NAT do servidor SIP (onde `<IP externo>` é o valor obtido na saída do `make`/Terraform). Na seção global:
+```
+listen=udp:0.0.0.0:5060
+alias="<IP externo>:5060"
+alias="<IP externo>"
+advertised_address=<IP externo>
+```
+
+2. Suporte a NAT dos agentes remotos (UACs e UASs). Na seção de módulos:
+```
+loadmodule "nathelper.so"
+modparam("nathelper", "received_avp", "$avp(42)")
+```
