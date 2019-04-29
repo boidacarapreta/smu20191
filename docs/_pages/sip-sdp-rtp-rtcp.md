@@ -15,7 +15,7 @@ O registro SIP está ausente neste primeiro arquivo. Será gerada uma segunda ca
 ## Estabelecimento de sessão de mídia
 O estabelecimento de sessão de mídia foi feito entre os UAs `iphone` e `linux`.
 
-1. No cabeçalho (_Message Header_), o convite é feito de `linux` (campo `From`) para `iphone` (campo `To`) usando o método SIP INVITE. No corpo da mensagem (_Message Body_), o campo SDP `m` (_Media Description, name and address_) informa a lista de codecs suportados: apenas G.711 ley µ.
+1. No cabeçalho (_Message Header_), o convite é feito de `linux` (campo `From`) para `iphone` (campo `To`) usando o método SIP INVITE. No corpo da mensagem (_Message Body_), o campo SDP `m` (_Media Description, name and address_) informa a lista de codecs suportados: apenas G.711 lei µ.
 ```
 ...
 Session Initiation Protocol (INVITE)
