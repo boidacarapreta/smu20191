@@ -7,3 +7,8 @@
 
 # .tfvars files
 *.tfvars
+
+# Jekyll
+Gemfile.lock
+.sass-cache/
+_site/
