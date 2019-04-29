@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: default
 title: SIP + SDP + RTP + RTCP
 permalink: /sip-sdp-rtp-rtcp
 ---
