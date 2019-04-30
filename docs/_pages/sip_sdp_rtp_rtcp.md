@@ -1,11 +1,11 @@
 ---
 layout: default
 title: SIP + SDP + RTP + RTCP
-permalink: /sip-sdp-rtp-rtcp
+permalink: /sip_sdp_rtp_rtcp.html
 ---
 
 # Arquivo de captura
-Foi utilizado o aplicativo `tcpdump` para captura do arquivo ([sip_rtp_rtcp.pcapng](/sip_rtp_rtcp.pcapng)) - em formato [PCAPng](https://wiki.wireshark.org/Development/PcapNg).
+Foi utilizado o aplicativo `tcpdump` para captura do arquivo ([sip_sdp_rtp_rtcp.pcapng](/sip_sdp_rtp_rtcp.pcapng)) - em formato [PCAPng](https://wiki.wireshark.org/Development/PcapNg).
 
 # SIP
 
@@ -15,7 +15,7 @@ O registro SIP está ausente neste primeiro arquivo. Será gerada uma segunda ca
 ## Estabelecimento de sessão de mídia
 O estabelecimento de sessão de mídia foi feito entre os UAs `iphone` e `linux`.
 
-1. No cabeçalho (_Message Header_), o convite é feito de `linux` (campo `From`) para `iphone` (campo `To`) usando o método SIP INVITE. No corpo da mensagem (_Message Body_), o campo SDP `m` (_Media Description, name and address_) informa a lista de codecs suportados: apenas G.711 lei µ.
+1. No cabeçalho (_Message Header_), o convite é feito de `linux` (campo `From`) para `iphone` (campo `To`) usando o método SIP INVITE. No corpo da mensagem (_Message Body_), o campo SDP `m` (_Media Description, name and address_) informa a lista de codecs suportados: apenas G.711 lei µ (RTP/AVP tipo 0).
 ```
 ...
 Session Initiation Protocol (INVITE)

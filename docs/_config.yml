@@ -6,8 +6,6 @@ description: >
   do Curso de Engenharia de Telecomunicações do IFSC câmpus São José -
   primeiro semestre de 2019.
 baseurl: ''
-url: 'https://boidacarapreta.github.io/smu20191'
+url: 'https://boidacarapreta.github.io/smu20191/'
 github_username: boidacarapreta
-#sass:
-#  sass_dir: _sass
 include: ['_pages']
