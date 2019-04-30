@@ -5,7 +5,7 @@ permalink: /sip_sdp_rtp_rtcp.html
 ---
 
 # Arquivo de captura
-Foi utilizado o aplicativo `tcpdump` para captura do arquivo ([sip_sdp_rtp_rtcp.pcapng]({{ "/sip_sdp_rtp_rtcp.pcapng" | relative_url }})) - em formato [PCAPng](https://wiki.wireshark.org/Development/PcapNg).
+Foi utilizado o aplicativo `tcpdump` para captura do arquivo ([sip_sdp_rtp_rtcp.pcapng]({{ "sip_sdp_rtp_rtcp.pcapng" | relative_url }})) - em formato [PCAPng](https://wiki.wireshark.org/Development/PcapNg).
 
 # SIP
 
