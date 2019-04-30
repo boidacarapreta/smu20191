@@ -1,11 +1,11 @@
-theme: jekyll-theme-minimal
+theme: jekyll-theme-cayman
 title: Sistemas Multimídia (2019.1)
 email: etorresini@ifsc.edu.br
 description: >
   Este é um projeto em desenvolvimento na disciplina de Sistemas Multimídia
   do Curso de Engenharia de Telecomunicações do IFSC câmpus São José -
   primeiro semestre de 2019.
-baseurl: '/smu20191'
+baseurl: ''
 url: 'https://boidacarapreta.github.io/smu20191'
 github_username: boidacarapreta
 include: ['_pages']
