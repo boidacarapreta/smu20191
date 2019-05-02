@@ -24,7 +24,11 @@ Foi utilizado o aplicativo [tcpdump](https://www.tcpdump.org) para captura do tr
 tcpdump -n -i any -w sip_sdp_rtp_rtcp.pcapng udp
 ```
 
-Esse primeiro filtro foi aplicado apenas a UDP. Na sequência, foi utilizado o aplicativo [Wireshark](https://www.wireshark.org) para selecionar apenas os protocolos SIP, SDP, RTP e RTCP da Camada de Aplicação, com o seguinte filtro: `sip or sdp or rtp or rtcp`.
+Esse primeiro filtro foi aplicado apenas a UDP. Na sequência, foi utilizado o aplicativo [Wireshark](https://www.wireshark.org) para selecionar apenas os protocolos SIP, SDP, RTP e RTCP da Camada de Aplicação, com o seguinte filtro:
+
+```
+sip or sdp or rtp or rtcp
+```
 
 Ao final, foi obtido o arquivo [sip_sdp_rtp_rtcp.pcapng]({{ "/sip_sdp_rtp_rtcp.pcapng" | relative_url }}). A seguir, será usado formato gerado pelo aplicativo Wireshark para apresentar as mensagens trafegadas entre as aplicações.
 
@@ -36,7 +40,9 @@ Para facilitar a compreensão de cada protocolo, os cabeçalhos SIP e SDP foram 
 
 ## Registro
 
-Para fins de registro, foi documentado apenas o registro do agente `joao`. A requisição (`REGISTER`):
+Para fins de registro, foi documentado apenas o registro do agente `joao`.
+
+- A requisição (`REGISTER`):
 
 ```sip
 Session Initiation Protocol (REGISTER)
@@ -55,7 +61,7 @@ Session Initiation Protocol (REGISTER)
         Content-Length:  0
 ```
 
-e a resposta com confirmação do registro (`200 OK`):
+- A seguir, a resposta com confirmação do servidor SIP Registrar (`200 OK`):
 
 ```sip
 Session Initiation Protocol (200)
@@ -184,7 +190,7 @@ Conforme dito anteriormente, o protocolo SDP foi suprimido da seção anterior p
 
 Nem todas as mensagens contêm o corpo da mensagem com SDP. Aqui serão informadas apenas as duas mensagens, a requisição (`INVITE`) e resposta com sucesso `200 OK`):
 
-- Na requisição feita por `maria`, no corpo da mensagem (_Message Body_), o campo SDP `m` (_Media Description, name and address_) informa o tipo de mídia (áudio), a porta (7426/UDP) e a lista de codecs suportados (G.711 lei µ - RTP/AVP tipo 0, G.711 lei A - RTP/AVP tipo 8 e ); o campo `c` (_Connection Information_), o endereço IPv4 `192.168.0.110`:
+- Na requisição feita por `maria`, no corpo da mensagem (_Message Body_), o campo SDP `m` (_Media Description, name and address_) informa o tipo de mídia (áudio), a porta (`7426`/UDP) e a lista de codecs suportados (G.711 lei µ - RTP/AVP tipo 0, G.711 lei A - RTP/AVP tipo 8 e DMTF - RTP/AVP tipo 101); o campo `c` (_Connection Information_), o endereço IPv4 `192.168.0.110`:
 
 ```sdp
 Session Initiation Protocol (INVITE)
@@ -218,7 +224,7 @@ Session Initiation Protocol (INVITE)
             Media Attribute (a): rtcp-fb:* ccm tmmbr
 ```
 
-- A confirmação por parte de `joao` retorna como tipo de mídia (`m`) áudio na porta 4000/UDP e suporte a apenas G.711 lei µ - RTP/AVP tipo 0; em caminho (`c`), o endereço `192.168.0.166`:
+- A confirmação por parte de `joao` retorna como tipo de mídia (`m`) áudio na porta `4000`/UDP e suporte a apenas G.711 lei µ - RTP/AVP tipo 0; em caminho (`c`), o endereço `192.168.0.166`:
 
 ```sdp
 Session Initiation Protocol (200)
@@ -259,10 +265,72 @@ Como houve a confirmação da requisição por parte de `joao` (`200 OK`), o áu
 
 ## Codecs
 
+Os codecs ofertados seguiram a [RFC 3551](https://tools.ietf.org/html/rfc3551) (seções [4.5.14](https://tools.ietf.org/html/rfc3551#section-4.5.14) e [6](https://tools.ietf.org/html/rfc3551#section-6)), e foram aceitados por ambas as partes:
+- De `maria` para `joao`: G.711 leis µ e A, ou PCMU e PCMA;
+- De `joao` para `maria`: apenas G.711 leis µ, ou PCMU.
+
+
 ## Caminhos
 
-# RTP
+O cenário contempla apenas IPv4, devido a restrições da nuvem pública escolhida ([GCP](https://issuetracker.google.com/issues/35904387)). Assim a oferta de endereços se limitou a essa pilha:
+- De `maria` para `joao`: `192.168.0.110`, porta `7426`/UDP;
+- De `joao` para `maria`: `192.168.0.166`, porta `4000`/UDP.
+
+
+# [RTP](https://tools.ietf.org/html/rfc3550)
+
+Como ambos os UAs estavam em mesma rede local (`192.168.0.0/24`), o tráfego de mídia ocorreu diretamente entre os agentes, sendo usada a mesma porta para transmissão e recepção em cada terminal.
+
 
 ## Tipo de _payload_
 
+Nas mensagens descritas a seguir, foram mantidos os cabeçalhos de Rede e de Transporte para validar os valores do SDP:
+
+- A primeira mensagem RTP de `maria` para `joao`:
+
+```rtp
+Internet Protocol Version 4, Src: 192.168.0.110, Dst: 192.168.0.166
+User Datagram Protocol, Src Port: 7246, Dst Port: 4000
+Real-Time Transport Protocol
+    [Stream setup by SDP (frame 8)]
+    10.. .... = Version: RFC 1889 Version (2)
+    ..0. .... = Padding: False
+    ...0 .... = Extension: False
+    .... 0000 = Contributing source identifiers count: 0
+    0... .... = Marker: False
+    Payload type: ITU-T G.711 PCMU (0)
+    Sequence number: 0
+    [Extended sequence number: 65536]
+    Timestamp: 1672021947
+    Synchronization Source identifier: 0x21176007 (555180039)
+    Payload: ffffffffffffffffffffffffffff7eff7eff7eff7e7efe7d…
+```
+
+- Assim como de `joao` para `maria`:
+
+```rtp
+Internet Protocol Version 4, Src: 192.168.0.166, Dst: 192.168.0.110
+User Datagram Protocol, Src Port: 4000, Dst Port: 7246
+Real-Time Transport Protocol
+    [Stream setup by SDP (frame 8)]
+    10.. .... = Version: RFC 1889 Version (2)
+    ..0. .... = Padding: False
+    ...0 .... = Extension: False
+    .... 0000 = Contributing source identifiers count: 0
+    1... .... = Marker: True
+    Payload type: ITU-T G.711 PCMU (0)
+    Sequence number: 5234
+    [Extended sequence number: 70770]
+    Timestamp: 160
+    Synchronization Source identifier: 0x43fe689e (1140746398)
+    Payload: ffffffffffffffffffffffffffffffffffffffffffffffff…
+```
+
+
 ## SSRC e _timestamp_
+
+Como há apenas uma mídia, de áudio, o SSRC é único em cada sentido:
+- De `maria` para `joao`: `0x21176007`;
+- De `maria` para `joao`: `0x43fe689e`;
+
+Em relação ao tempo de transporte da mídia, a média de jitter é de 5ms, um bom valor considerando rede local sobre IEEE 802.11ac (5GHz) com visada e curta distância (~3 metros).
