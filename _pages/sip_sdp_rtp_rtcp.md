@@ -333,4 +333,9 @@ Como há apenas uma mídia, de áudio, o SSRC é único em cada sentido:
 - De `maria` para `joao`: `0x21176007`;
 - De `maria` para `joao`: `0x43fe689e`;
 
-Em relação ao tempo de transporte da mídia, a média de jitter é de 5ms, um bom valor considerando rede local sobre IEEE 802.11ac (5GHz) com visada e curta distância (~3 metros).
+
+# RTCP
+
+Em relação ao tempo de transporte da mídia, a média de jitter é de 5ms, um bom valor considerando rede local sobre IEEE 802.11ac (5GHz) com visada e curta distância (~3 metros). Em relação a perda, **não houve qualquer perda em ambos os sentidos**, valor confirmado em todos os relatórios RTCP enviados pelos UAs, totalizando:
+- 1087 mensagens RTP de `joao` para `maria`;
+- 1074 mensagens RTP de `maria` para `joao`.
