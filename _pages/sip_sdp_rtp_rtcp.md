@@ -80,7 +80,7 @@ Com o registro realizado, é possível realizar o estabelecimento de sessão de 
 
 O estabelecimento de sessão de mídia foi feito entre os UAs `joao` e `maria`:
 
-1. No cabeçalho (_Message Header_), o convite é feito de `maria` (campo `From`) para `joao` (campo `To`) usando o método SIP INVITE:
+- No cabeçalho (_Message Header_), o convite é feito de `maria` (campo `From`) para `joao` (campo `To`) usando o método SIP INVITE:
 
 ```
 Session Initiation Protocol (INVITE)
@@ -102,7 +102,7 @@ Session Initiation Protocol (INVITE)
         User-Agent: Linphone_iPhone.SE_iOS12.2/4.0.2-2-gf18fb2a09 (belle-sip/1.6.3)
 ```
 
-2. O servidor `OpenSIPS` (campo `Server`) responde (temporariamente) para `maria` com `100 Giving a Try`, na busca do UA. Destaque para os campos `Call-ID` e `CSeq` com mesmo valor do convite, além da `tag` no campo `From`, identificando assim a resposta correspondente:
+- O servidor `OpenSIPS` (campo `Server`) responde (temporariamente) para `maria` com `100 Giving a Try`, na busca do UA. Destaque para os campos `Call-ID` e `CSeq` com mesmo valor do convite, além da `tag` no campo `From`, identificando assim a resposta correspondente:
 
 ```
 Session Initiation Protocol (100)
@@ -118,7 +118,7 @@ Session Initiation Protocol (100)
         Content-Length:  0
 ```
 
-3. Uma vez localizado o UA na base local de registros, a requisição `INIVITE` foi encaminhada para o mesmo, e outra resposta intermediária foi enviada para `maria`, a de `180 Ringing`:
+- Uma vez localizado o UA na base local de registros, a requisição `INIVITE` foi encaminhada para o mesmo, e outra resposta intermediária foi enviada para `maria`, a de `180 Ringing`:
 
 ```sip
 Session Initiation Protocol (180)
@@ -136,7 +136,7 @@ Session Initiation Protocol (180)
         Content-Length:  0
 ```
 
-4. Quando `joao` atende a solicitação, confirmando o estabelecimento da sessão, a resposta é definitiva, com `200 OK`:
+- Quando `joao` atende a solicitação, confirmando o estabelecimento da sessão, a resposta é definitiva, com `200 OK`:
 
 ```sip
 Session Initiation Protocol (200)
@@ -156,7 +156,7 @@ Session Initiation Protocol (200)
         Content-Length:   277
 ```
 
-5. E para completar o estabelecimento da sessão, a última mensagem do _3-way handshake_, o método `ACK`:
+- E para completar o estabelecimento da sessão, a última mensagem do _3-way handshake_, o método `ACK`:
 
 ```sip
 Session Initiation Protocol (ACK)
@@ -184,7 +184,7 @@ Conforme dito anteriormente, o protocolo SDP foi suprimido da seção anterior p
 
 Nem todas as mensagens contêm o corpo da mensagem com SDP. Aqui serão informadas apenas as duas mensagens, a requisição (`INVITE`) e resposta com sucesso `200 OK`):
 
-1. Na requisição feita por `maria`, no corpo da mensagem (_Message Body_), o campo SDP `m` (_Media Description, name and address_) informa o tipo de mídia (áudio), a porta (7426/UDP) e a lista de codecs suportados (G.711 lei µ - RTP/AVP tipo 0, G.711 lei A - RTP/AVP tipo 8 e ); o campo `c` (_Connection Information_), o endereço IPv4 `192.168.0.110`:
+- Na requisição feita por `maria`, no corpo da mensagem (_Message Body_), o campo SDP `m` (_Media Description, name and address_) informa o tipo de mídia (áudio), a porta (7426/UDP) e a lista de codecs suportados (G.711 lei µ - RTP/AVP tipo 0, G.711 lei A - RTP/AVP tipo 8 e ); o campo `c` (_Connection Information_), o endereço IPv4 `192.168.0.110`:
 
 ```sdp
 Session Initiation Protocol (INVITE)
@@ -218,7 +218,7 @@ Session Initiation Protocol (INVITE)
             Media Attribute (a): rtcp-fb:* ccm tmmbr
 ```
 
-2. A confirmação por parte de `joao` retorna como tipo de mídia (`m`) áudio na porta 4000/UDP e suporte a apenas G.711 lei µ - RTP/AVP tipo 0; em caminho (`c`), o endereço `192.168.0.166`:
+- A confirmação por parte de `joao` retorna como tipo de mídia (`m`) áudio na porta 4000/UDP e suporte a apenas G.711 lei µ - RTP/AVP tipo 0; em caminho (`c`), o endereço `192.168.0.166`:
 
 ```sdp
 Session Initiation Protocol (200)
