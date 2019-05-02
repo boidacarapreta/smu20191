@@ -4,58 +4,265 @@ title: SIP + SDP + RTP + RTCP
 permalink: /sip_sdp_rtp_rtcp.html
 ---
 
-# Arquivo de captura
-Foi utilizado o aplicativo `tcpdump` para captura do arquivo ([sip_sdp_rtp_rtcp.pcapng]({{ "/sip_sdp_rtp_rtcp.pcapng" | relative_url }})) - em formato [PCAPng](https://wiki.wireshark.org/Development/PcapNg).
+# Cenário
 
-# SIP
+Há um servidor SIP com dupla função: Registrar e Proxy, cujo endereço IPv4 é `35.247.226.5`. De UAs (_User Agents_), há dois:
+1. João: `<joao@192.168.0.166>`
+2. Maria: `<maria@192.168.0.110>`
+
+Ambos os UAs se registraram no SIP Registrar. Como o tráfego entre UAs e servidor possui NAT (pelo menos 1 conhecido), todo o tráfego SIP passará pelo mesmo servidor, que acumula a função de SIP Proxy. Assim, as URIs ficam assim:
+
+1. João: `sip:joao@35.247.226.5`
+2. Maria: `sip:maria@35.247.226.5`
+
+
+# Arquivo de captura
+
+Foi utilizado o aplicativo [tcpdump](https://www.tcpdump.org) para captura do tráfego - em formato [PCAPng](https://wiki.wireshark.org/Development/PcapNg):
+
+```bash
+tcpdump -n -i any -w sip_sdp_rtp_rtcp.pcapng udp
+```
+
+Esse primeiro filtro foi aplicado apenas a UDP. Na sequência, foi utilizado o aplicativo [Wireshark](https://www.wireshark.org) para selecionar apenas os protocolos SIP, SDP, RTP e RTCP da Camada de Aplicação, com o seguinte filtro: `sip or sdp or rtp or rtcp`.
+
+Ao final, foi obtido o arquivo [sip_sdp_rtp_rtcp.pcapng]({{ "/sip_sdp_rtp_rtcp.pcapng" | relative_url }}). A seguir, será usado formato gerado pelo aplicativo Wireshark para apresentar as mensagens trafegadas entre as aplicações.
+
+
+# [SIP](https://tools.ietf.org/html/rfc3261)
+
+Para facilitar a compreensão de cada protocolo, os cabeçalhos SIP e SDP foram separados nesta documentação, porém mencionadas as relações entre os protocolos quando necessário.
+
 
 ## Registro
-O registro SIP está ausente neste primeiro arquivo. Será gerada uma segunda captura.
 
-## Estabelecimento de sessão de mídia
-O estabelecimento de sessão de mídia foi feito entre os UAs `iphone` e `linux`.
+Para fins de registro, foi documentado apenas o registro do agente `joao`. A requisição (`REGISTER`):
 
-1. No cabeçalho (_Message Header_), o convite é feito de `linux` (campo `From`) para `iphone` (campo `To`) usando o método SIP INVITE. No corpo da mensagem (_Message Body_), o campo SDP `m` (_Media Description, name and address_) informa a lista de codecs suportados: apenas G.711 lei µ (RTP/AVP tipo 0).
-```
-...
-Session Initiation Protocol (INVITE)
-    Request-Line: INVITE sip:iphone@35.198.6.100;transport=UDP SIP/2.0
+```sip
+Session Initiation Protocol (REGISTER)
+    Request-Line: REGISTER sip:35.247.226.5 SIP/2.0
     Message Header
-        Via: SIP/2.0/UDP 191.36.14.86:56868;branch=z9hG4bK-524287-1---3496e5028fede1fc;rport
+        Via: SIP/2.0/UDP 192.168.0.166:52142;rport;branch=z9hG4bKPjMYSRMWW2hHKTciwAW7UtzshUYELOmY9B
         Max-Forwards: 70
-        Contact: <sip:linux@191.36.14.86:56868;transport=UDP>
-        To: <sip:iphone@35.198.6.100;transport=UDP>
-        From: <sip:linux@35.198.6.100;transport=UDP>;tag=519d5449
-        Call-ID: blpzFplpENeqGT_8w9oYFQ..
-        CSeq: 1 INVITE
-        Allow: INVITE, ACK, CANCEL, BYE, NOTIFY, REFER, MESSAGE, OPTIONS, INFO, SUBSCRIBE
-        Content-Type: application/sdp
-        User-Agent: Z 5.2.19 rv2.8.99
-        Allow-Events: presence, kpml, talk
-        Content-Length: 161
-    Message Body
-        Session Description Protocol
-            Session Description Protocol Version (v): 0
-            Owner/Creator, Session Id (o): Z 0 0 IN IP4 191.36.14.86
-            Session Name (s): Z
-            Connection Information (c): IN IP4 191.36.14.86
-            Time Description, active time (t): 0 0
-            Media Description, name and address (m): audio 8000 RTP/AVP 0 101
-            Media Attribute (a): rtpmap:101 telephone-event/8000
-            Media Attribute (a): fmtp:101 0-16
-            Media Attribute (a): sendrecv
+        From: "Jo\303\243o" <sip:joao@35.247.226.5>;tag=qZhcm1DZLe.2mge5z9911MOjGmjBCNzF
+        To: "Jo\303\243o" <sip:joao@35.247.226.5>
+        Call-ID: KQYP1FbpE6pso.1P8Wo.zAQts7JkgrrD
+        CSeq: 54353 REGISTER
+        User-Agent: Telephone 1.4
+        Contact: "Jo\303\243o" <sip:joao@192.168.0.166:52142;ob>
+        Expires: 300
+        Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, INFO, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+        Content-Length:  0
 ```
-2. O servidor `OpenSIPS` (campo `Server`) responde (temporariamente) para `linux` com `100 Giving a Try`, na busca do UA. Destaque para os campos `Call-ID` e `CSeq` com mesmo valor do convite, além da `tag` no campo `From`, identificando assim a resposta correspondente.
-```
-...
-Session Initiation Protocol (100)
-    Status-Line: SIP/2.0 100 Giving a try
+
+e a resposta com confirmação do registro (`200 OK`):
+
+```sip
+Session Initiation Protocol (200)
+    Status-Line: SIP/2.0 200 OK
     Message Header
-        Via: SIP/2.0/UDP 191.36.14.86:56868;received=191.36.14.86;branch=z9hG4bK-524287-1---3496e5028fede1fc;rport=56868
-        To: <sip:iphone@35.198.6.100;transport=UDP>
-        From: <sip:linux@35.198.6.100;transport=UDP>;tag=519d5449
-        Call-ID: blpzFplpENeqGT_8w9oYFQ..
-        CSeq: 1 INVITE
+        Via: SIP/2.0/UDP 192.168.0.166:52142;received=177.16.145.108;rport=52142;branch=z9hG4bKPjMYSRMWW2hHKTciwAW7UtzshUYELOmY9B
+        From: "Jo\303\243o" <sip:joao@35.247.226.5>;tag=qZhcm1DZLe.2mge5z9911MOjGmjBCNzF
+        To: "Jo\303\243o" <sip:joao@35.247.226.5>;tag=cb89901742d7fa34dfcce4fffa472cde.d080
+        Call-ID: KQYP1FbpE6pso.1P8Wo.zAQts7JkgrrD
+        CSeq: 54353 REGISTER
+        Contact: <sip:joao@192.168.0.166:52142;ob>;expires=300
         Server: OpenSIPS (2.4.5 (x86_64/linux))
         Content-Length: 0
 ```
+
+Apesar do registro SIP não possuir tecnicamente um diálogo para tal, conforme a [RFC 3261](https://tools.ietf.org/html/rfc3261#), percebe-se a relação entre as duas mensagens na discriminação da transação: os campos `Call-ID` e `CSeq` e as _tags_ dos campos `From` e `To`.
+
+Com o registro realizado, é possível realizar o estabelecimento de sessão de mídia entre os UAs.
+
+
+## Estabelecimento de sessão de mídia
+
+O estabelecimento de sessão de mídia foi feito entre os UAs `joao` e `maria`:
+
+1. No cabeçalho (_Message Header_), o convite é feito de `maria` (campo `From`) para `joao` (campo `To`) usando o método SIP INVITE:
+
+```
+Session Initiation Protocol (INVITE)
+    Request-Line: INVITE sip:joao@177.16.145.108:52142;ob SIP/2.0
+    Message Header
+        Record-Route: <sip:35.247.226.5;lr>
+        Via: SIP/2.0/UDP 35.247.226.5:5060;branch=z9hG4bKb7c5.e34f88c5.0
+        Via: SIP/2.0/UDP 192.168.0.110:52466;received=177.16.145.108;branch=z9hG4bK.XpX5icLLQ;rport=52466
+        From: "Maria" <sip:maria@35.247.226.5>;tag=CJS0LqDpj
+        To: "joao" <sip:joao@35.247.226.5>
+        CSeq: 20 INVITE
+        Call-ID: gTbOAFKVjd
+        Max-Forwards: 69
+        Supported: replaces, outbound, gruu
+        Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, NOTIFY, MESSAGE, SUBSCRIBE, INFO, UPDATE
+        Content-Type: application/sdp
+        Content-Length: 271
+        Contact: <sip:maria@177.16.145.108:52466;transport=udp>;expires=3600;+sip.instance="<urn:uuid:6c9aa43a-6f33-4095-bd21-4d3c25434567>";+org.linphone.specs=groupchat
+        User-Agent: Linphone_iPhone.SE_iOS12.2/4.0.2-2-gf18fb2a09 (belle-sip/1.6.3)
+```
+
+2. O servidor `OpenSIPS` (campo `Server`) responde (temporariamente) para `maria` com `100 Giving a Try`, na busca do UA. Destaque para os campos `Call-ID` e `CSeq` com mesmo valor do convite, além da `tag` no campo `From`, identificando assim a resposta correspondente:
+
+```
+Session Initiation Protocol (100)
+    Status-Line: SIP/2.0 100 Trying
+    Message Header
+        Via: SIP/2.0/UDP 35.247.226.5:5060;received=35.247.226.5;branch=z9hG4bKb7c5.e34f88c5.0
+        Via: SIP/2.0/UDP 192.168.0.110:52466;rport=52466;received=177.16.145.108;branch=z9hG4bK.XpX5icLLQ
+        Record-Route: <sip:35.247.226.5;lr>
+        Call-ID: gTbOAFKVjd
+        From: "Maria" <sip:maria@35.247.226.5>;tag=CJS0LqDpj
+        To: "joao" <sip:joao@35.247.226.5>
+        CSeq: 20 INVITE
+        Content-Length:  0
+```
+
+3. Uma vez localizado o UA na base local de registros, a requisição `INIVITE` foi encaminhada para o mesmo, e outra resposta intermediária foi enviada para `maria`, a de `180 Ringing`:
+
+```sip
+Session Initiation Protocol (180)
+    Status-Line: SIP/2.0 180 Ringing
+    Message Header
+        Via: SIP/2.0/UDP 35.247.226.5:5060;received=35.247.226.5;branch=z9hG4bKb7c5.e34f88c5.0
+        Via: SIP/2.0/UDP 192.168.0.110:52466;rport=52466;received=177.16.145.108;branch=z9hG4bK.XpX5icLLQ
+        Record-Route: <sip:35.247.226.5;lr>
+        Call-ID: gTbOAFKVjd
+        From: "Maria" <sip:maria@35.247.226.5>;tag=CJS0LqDpj
+        To: "joao" <sip:joao@35.247.226.5>;tag=NME8jLxUrC3h6Ia4DJ-GW74aGYHSJSqr
+        CSeq: 20 INVITE
+        Contact: <sip:joao@177.16.145.108:52142;ob>
+        Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, INFO, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+        Content-Length:  0
+```
+
+4. Quando `joao` atende a solicitação, confirmando o estabelecimento da sessão, a resposta é definitiva, com `200 OK`:
+
+```sip
+Session Initiation Protocol (200)
+    Status-Line: SIP/2.0 200 OK
+    Message Header
+        Via: SIP/2.0/UDP 35.247.226.5:5060;received=35.247.226.5;branch=z9hG4bKb7c5.e34f88c5.0
+        Via: SIP/2.0/UDP 192.168.0.110:52466;rport=52466;received=177.16.145.108;branch=z9hG4bK.XpX5icLLQ
+        Record-Route: <sip:35.247.226.5;lr>
+        Call-ID: gTbOAFKVjd
+        From: "Maria" <sip:maria@35.247.226.5>;tag=CJS0LqDpj
+        To: "joao" <sip:joao@35.247.226.5>;tag=NME8jLxUrC3h6Ia4DJ-GW74aGYHSJSqr
+        CSeq: 20 INVITE
+        Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, INFO, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+        Contact: <sip:joao@177.16.145.108:52142;ob>
+        Supported: replaces, 100rel, norefersub
+        Content-Type: application/sdp
+        Content-Length:   277
+```
+
+5. E para completar o estabelecimento da sessão, a última mensagem do _3-way handshake_, o método `ACK`:
+
+```sip
+Session Initiation Protocol (ACK)
+    Request-Line: ACK sip:joao@177.16.145.108:52142;ob SIP/2.0
+    Message Header
+        Via: SIP/2.0/UDP 35.247.226.5:5060;branch=z9hG4bKb7c5.e34f88c5.2
+        Via: SIP/2.0/UDP 192.168.0.110:52466;received=177.16.145.108;rport=52466;branch=z9hG4bK.cGe89hYZY
+        From: "Maria" <sip:maria@35.247.226.5>;tag=CJS0LqDpj
+        To: "joao" <sip:joao@35.247.226.5>;tag=NME8jLxUrC3h6Ia4DJ-GW74aGYHSJSqr
+        CSeq: 20 ACK
+        Call-ID: gTbOAFKVjd
+        Max-Forwards: 69
+        User-Agent: Linphone_iPhone.SE_iOS12.2/4.0.2-2-gf18fb2a09 (belle-sip/1.6.3)
+```
+
+Percebe-se que em todas as mensagens os campos `Call-ID` e `CSeq` mantêm-se inalterados: enquanto que `Call-ID` será o mesmo para todas as mensagens dessa sessão (diálogo), `CSeq` será incrementado para cada transação - no caso, todas as mensagens acima foram uma única transação. Cabe destacar que a _tag_ de `From` apareceu em todas as mensagens, enquanto que no campo _To_ foi acrescida quando localizado o UA de destino.
+
+
+# [SDP](https://tools.ietf.org/html/rfc4566)
+
+Conforme dito anteriormente, o protocolo SDP foi suprimido da seção anterior para facilitar a leitura do cabeçalho SIP, nesta seção, será mantido o SIP e adicionado o corpo da mensagem, o SDP.
+
+
+## Estabelecimento de sessão de mídia
+
+Nem todas as mensagens contêm o corpo da mensagem com SDP. Aqui serão informadas apenas as duas mensagens, a requisição (`INVITE`) e resposta com sucesso `200 OK`):
+
+1. Na requisição feita por `maria`, no corpo da mensagem (_Message Body_), o campo SDP `m` (_Media Description, name and address_) informa o tipo de mídia (áudio), a porta (7426/UDP) e a lista de codecs suportados (G.711 lei µ - RTP/AVP tipo 0, G.711 lei A - RTP/AVP tipo 8 e ); o campo `c` (_Connection Information_), o endereço IPv4 `192.168.0.110`:
+
+```sdp
+Session Initiation Protocol (INVITE)
+    Request-Line: INVITE sip:joao@177.16.145.108:52142;ob SIP/2.0
+    Message Header
+        Record-Route: <sip:35.247.226.5;lr>
+        Via: SIP/2.0/UDP 35.247.226.5:5060;branch=z9hG4bKb7c5.e34f88c5.0
+        Via: SIP/2.0/UDP 192.168.0.110:52466;received=177.16.145.108;branch=z9hG4bK.XpX5icLLQ;rport=52466
+        From: "Maria" <sip:maria@35.247.226.5>;tag=CJS0LqDpj
+        To: "joao" <sip:joao@35.247.226.5>
+        CSeq: 20 INVITE
+        Call-ID: gTbOAFKVjd
+        Max-Forwards: 69
+        Supported: replaces, outbound, gruu
+        Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, NOTIFY, MESSAGE, SUBSCRIBE, INFO, UPDATE
+        Content-Type: application/sdp
+        Content-Length: 271
+        Contact: <sip:maria@177.16.145.108:52466;transport=udp>;expires=3600;+sip.instance="<urn:uuid:6c9aa43a-6f33-4095-bd21-4d3c25434567>";+org.linphone.specs=groupchat
+        User-Agent: Linphone_iPhone.SE_iOS12.2/4.0.2-2-gf18fb2a09 (belle-sip/1.6.3)
+    Message Body
+        Session Description Protocol
+            Session Description Protocol Version (v): 0
+            Owner/Creator, Session Id (o): maria 126 3472 IN IP4 192.168.0.110
+            Session Name (s): Talk
+            Connection Information (c): IN IP4 192.168.0.110
+            Time Description, active time (t): 0 0
+            Session Attribute (a): rtcp-xr:rcvr-rtt=all:10000 stat-summary=loss,dup,jitt,TTL voip-metrics
+            Media Description, name and address (m): audio 7246 RTP/AVP 0 8 101
+            Media Attribute (a): rtpmap:101 telephone-event/8000
+            Media Attribute (a): rtcp-fb:* trr-int 1000
+            Media Attribute (a): rtcp-fb:* ccm tmmbr
+```
+
+2. A confirmação por parte de `joao` retorna como tipo de mídia (`m`) áudio na porta 4000/UDP e suporte a apenas G.711 lei µ - RTP/AVP tipo 0; em caminho (`c`), o endereço `192.168.0.166`:
+
+```sdp
+Session Initiation Protocol (200)
+    Status-Line: SIP/2.0 200 OK
+    Message Header
+        Via: SIP/2.0/UDP 35.247.226.5:5060;received=35.247.226.5;branch=z9hG4bKb7c5.e34f88c5.0
+        Via: SIP/2.0/UDP 192.168.0.110:52466;rport=52466;received=177.16.145.108;branch=z9hG4bK.XpX5icLLQ
+        Record-Route: <sip:35.247.226.5;lr>
+        Call-ID: gTbOAFKVjd
+        From: "Maria" <sip:maria@35.247.226.5>;tag=CJS0LqDpj
+        To: "joao" <sip:joao@35.247.226.5>;tag=NME8jLxUrC3h6Ia4DJ-GW74aGYHSJSqr
+        CSeq: 20 INVITE
+        Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, INFO, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+        Contact: <sip:joao@177.16.145.108:52142;ob>
+        Supported: replaces, 100rel, norefersub
+        Content-Type: application/sdp
+        Content-Length:   277
+    Message Body
+        Session Description Protocol
+            Session Description Protocol Version (v): 0
+            Owner/Creator, Session Id (o): - 3765805867 3765805868 IN IP4 192.168.0.166
+            Session Name (s): pjmedia
+            Bandwidth Information (b): AS:84
+            Time Description, active time (t): 0 0
+            Session Attribute (a): X-nat:0
+            Media Description, name and address (m): audio 4000 RTP/AVP 0 101
+            Connection Information (c): IN IP4 192.168.0.166
+            Bandwidth Information (b): TIAS:64000
+            Media Attribute (a): rtcp:4001 IN IP4 192.168.0.166
+            Media Attribute (a): sendrecv
+            Media Attribute (a): rtpmap:0 PCMU/8000
+            Media Attribute (a): rtpmap:101 telephone-event/8000
+            Media Attribute (a): fmtp:101 0-16
+```
+
+Como houve a confirmação da requisição por parte de `joao` (`200 OK`), o áudio no sentido `maria` -> `joao` foi confirmado. Com a requisição `ACK` o UA `maria` aceita o áudio no sentido contrário `joao` -> `maria`.
+
+
+## Codecs
+
+## Caminhos
+
+# RTP
+
+## Tipo de _payload_
+
+## SSRC e _timestamp_
