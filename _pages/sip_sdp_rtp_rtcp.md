@@ -7,6 +7,7 @@ permalink: /sip_sdp_rtp_rtcp.html
 # Cenário
 
 Há um servidor SIP com dupla função: Registrar e Proxy, cujo endereço IPv4 é `35.247.226.5`. De UAs (_User Agents_), há dois:
+
 1. João: `<joao@192.168.0.166>`
 2. Maria: `<maria@192.168.0.110>`
 
@@ -14,7 +15,6 @@ Ambos os UAs se registraram no SIP Registrar. Como o tráfego entre UAs e servid
 
 1. João: `sip:joao@35.247.226.5`
 2. Maria: `sip:maria@35.247.226.5`
-
 
 # Arquivo de captura
 
@@ -32,11 +32,9 @@ sip or sdp or rtp or rtcp
 
 Ao final, foi obtido o arquivo [sip_sdp_rtp_rtcp.pcapng]({{ "/sip_sdp_rtp_rtcp.pcapng" | relative_url }}). A seguir, será usado formato gerado pelo aplicativo Wireshark para apresentar as mensagens trafegadas entre as aplicações.
 
-
 # [SIP](https://tools.ietf.org/html/rfc3261)
 
 Para facilitar a compreensão de cada protocolo, os cabeçalhos SIP e SDP foram separados nesta documentação, porém mencionadas as relações entre os protocolos quando necessário.
-
 
 ## Registro
 
@@ -80,7 +78,6 @@ Session Initiation Protocol (200)
 Apesar do registro SIP não possuir tecnicamente um diálogo para tal, conforme a [RFC 3261](https://tools.ietf.org/html/rfc3261#), percebe-se a relação entre as duas mensagens na discriminação da transação: os campos `Call-ID` e `CSeq` e as _tags_ dos campos `From` e `To`.
 
 Com o registro realizado, é possível realizar o estabelecimento de sessão de mídia entre os UAs.
-
 
 ## Estabelecimento de sessão de mídia
 
@@ -180,11 +177,9 @@ Session Initiation Protocol (ACK)
 
 Percebe-se que em todas as mensagens os campos `Call-ID` e `CSeq` mantêm-se inalterados: enquanto que `Call-ID` será o mesmo para todas as mensagens dessa sessão (diálogo), `CSeq` será incrementado para cada transação - no caso, todas as mensagens acima foram uma única transação. Cabe destacar que a _tag_ de `From` apareceu em todas as mensagens, enquanto que no campo _To_ foi acrescida quando localizado o UA de destino.
 
-
 # [SDP](https://tools.ietf.org/html/rfc4566)
 
 Conforme dito anteriormente, o protocolo SDP foi suprimido da seção anterior para facilitar a leitura do cabeçalho SIP, nesta seção, será mantido o SIP e adicionado o corpo da mensagem, o SDP.
-
 
 ## Estabelecimento de sessão de mídia
 
@@ -262,25 +257,23 @@ Session Initiation Protocol (200)
 
 Como houve a confirmação da requisição por parte de `joao` (`200 OK`), o áudio no sentido `maria` -> `joao` foi confirmado. Com a requisição `ACK` o UA `maria` aceita o áudio no sentido contrário `joao` -> `maria`.
 
-
 ## Codecs
 
 Os codecs ofertados seguiram a [RFC 3551](https://tools.ietf.org/html/rfc3551) (seções [4.5.14](https://tools.ietf.org/html/rfc3551#section-4.5.14) e [6](https://tools.ietf.org/html/rfc3551#section-6)), e foram aceitados por ambas as partes:
+
 - De `maria` para `joao`: G.711 leis µ e A, ou PCMU e PCMA;
 - De `joao` para `maria`: apenas G.711 leis µ, ou PCMU.
-
 
 ## Caminhos
 
 O cenário contempla apenas IPv4, devido a restrições da nuvem pública escolhida ([GCP](https://issuetracker.google.com/issues/35904387)). Assim a oferta de endereços se limitou a essa pilha:
+
 - De `maria` para `joao`: `192.168.0.110`, porta `7426`/UDP;
 - De `joao` para `maria`: `192.168.0.166`, porta `4000`/UDP.
-
 
 # [RTP](https://tools.ietf.org/html/rfc3550)
 
 Como ambos os UAs estavam em mesma rede local (`192.168.0.0/24`), o tráfego de mídia ocorreu diretamente entre os agentes, sendo usada a mesma porta para transmissão e recepção em cada terminal.
-
 
 ## Tipo de _payload_
 
@@ -326,16 +319,16 @@ Real-Time Transport Protocol
     Payload: ffffffffffffffffffffffffffffffffffffffffffffffff…
 ```
 
-
 ## SSRC e _timestamp_
 
 Como há apenas uma mídia, de áudio, o SSRC é único em cada sentido:
+
 - De `maria` para `joao`: `0x21176007`;
 - De `maria` para `joao`: `0x43fe689e`;
-
 
 # RTCP
 
 Em relação ao tempo de transporte da mídia, a média de jitter é de 5ms, um bom valor considerando rede local sobre IEEE 802.11ac (5GHz) com visada e curta distância (~3 metros). Em relação a perda, **não houve qualquer perda em ambos os sentidos**, valor confirmado em todos os relatórios RTCP enviados pelos UAs, totalizando:
+
 - 1087 mensagens RTP de `joao` para `maria`;
 - 1074 mensagens RTP de `maria` para `joao`.
