@@ -62,7 +62,7 @@ Para cada componente acima, apresentar um exemplo prático do cenário analisado
 
 Para cada componente acima, apresentar um exemplo prático do cenário analisado.
 
-## Referências
+# Referências
 
 - [Getting Started](https://webrtc.org/start/)
 - [Awesome WebRTC](https://github.com/openrtc-io/awesome-webrtc)
