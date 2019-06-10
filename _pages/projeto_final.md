@@ -64,5 +64,6 @@ Para cada componente acima, apresentar um exemplo prático do cenário analisado
 
 # Referências
 
+- [High Performance Browser Networking](https://hpbn.co)
 - [Getting Started](https://webrtc.org/start/)
 - [Awesome WebRTC](https://github.com/openrtc-io/awesome-webrtc)
