@@ -61,3 +61,8 @@ Para cada componente acima, apresentar um exemplo prático do cenário analisado
 - **Protocolos usados**: quais os protocolos usados para prover segurança no tráfego de dados, bem como sua camada de atuação na arquitetura TCP/IP.
 
 Para cada componente acima, apresentar um exemplo prático do cenário analisado.
+
+## Referências
+
+- [Getting Started](https://webrtc.org/start/)
+- [Awesome WebRTC](https://github.com/openrtc-io/awesome-webrtc)
