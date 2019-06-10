@@ -15,6 +15,8 @@ O relatório do projeto final deve contemplar os 4 componentes básicos e, como 
 5. (Opcional) [Qualidade de serviço](#qualidade-de-serviço);
 6. (Opcional) [Segurança](#segurança).
 
+Nota: os componentes opcionais podem ser utilizados como substitutos aos obrigatórios no momento de avaliação - mediante acordo entre professor e aluno(s).
+
 ## Sinalização
 
 - **Requisições**: nomes das requisições.
