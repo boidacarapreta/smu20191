@@ -8,12 +8,12 @@ permalink: /projeto_final.html
 
 O relatório do projeto final deve contemplar os 4 componentes básicos e, como bônus, os 2 adicionais:
 
-1. [Sinalização](#sinalizacao);
-2. [Negociação de mídia](#negociacao-de-midia);
+1. [Sinalização](#sinalização);
+2. [Negociação de mídia](#negociação-de-mídia);
 3. [Escolha de caminho](#escolha-de-caminho);
-4. [Transporte de Mídia](#transporte-de-midia);
-5. (Opcional) [Qualidade de serviço](#qualidade-de-servico);
-6. (Opcional) [Segurança](seguranca).
+4. [Transporte de Mídia](#transporte-de-mídia);
+5. (Opcional) [Qualidade de serviço](#qualidade-de-serviço);
+6. (Opcional) [Segurança](#segurança).
 
 ## Sinalização
 
